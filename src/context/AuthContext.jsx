@@ -133,7 +133,21 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {loading ? (
+        <div style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#1a1a2e',
+          color: '#fff',
+          fontFamily: 'system-ui, sans-serif'
+        }}>
+          A carregar...
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 }
