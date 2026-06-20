@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "nickyanime-64b46",
     "public": "build",
     "ignore": [
       "firebase.json",
