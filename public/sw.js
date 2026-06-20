@@ -1,4 +1,3 @@
-~
 const CACHE_VERSION = 'v2';
 const CACHE_NAME = `nicky-anime-${CACHE_VERSION}`;
 
