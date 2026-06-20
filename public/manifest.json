@@ -1,0 +1,23 @@
+{
+  "name": "Nicky Anime - Listas Online",
+  "short_name": "Nicky Anime",
+  "description": "Pesquisa animes, guarda favoritos e cria listas personalizadas de animes.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#667eea",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "pt",
+  "categories": ["entertainment", "lifestyle"],
+  "icons": [
+    {
+      "src": "nickyLogov2png.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "share_target": {}
+}

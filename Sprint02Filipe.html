@@ -1,0 +1,1283 @@
+﻿<!DOCTYPE html> 
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nicky Anime</title>
+
+  <!--
+    â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+    â•‘                       NICKY ANIME - VERSION 2.0                       â•‘
+    â•‘                     Ãšltima atualizaÃ§Ã£o: MarÃ§o 2026                    â•‘
+    â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+    ATUALIZAÃ‡Ã•ES RECENTES:
+   
+    âœ“ Branding: "Nickel Anime" â†’ "Nicky Anime" (em todos os ficheiros)
+    âœ“ Logo: Atualizado para nickyLogov2png.png
+    âœ“ Mascote: Emoji ðŸª™ â†’ Imagem NickyMascoteCutePlaceholder.jpeg
+    âœ“ localStorage: "nickelUser" â†’ "nickyUser" (para consistÃªncia)
+    âœ“ Estrutura: React Router implementado (Home.jsx + AnimePage.jsx)
+    âœ“ Componentes: QuickSuggestions estabilizado (sem flicker)
+    âœ“ Estilos CSS: Adicionado suporte para mascote (.mascot-emoji)
+
+    NOTA: Este ficheiro (Sprint02Filipe.html) Ã© um ficheiro anterior.
+          A versÃ£o atual estÃ¡ em /src/App.jsx e /src/pages/
+  -->
+
+  <!-- REACT via CDN (ordem importante: React > ReactDOM > Babel) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* Reset global */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.75) 0%, rgba(118, 75, 162, 0.75) 100%),
+                  url("FundoTopAnime.jpg") center/cover no-repeat fixed;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .container {
+      max-width: 600px;
+      width: 100%;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    h1.app-title {
+      text-align: center;
+      color: #667eea;
+      margin-bottom: 25px;
+      font-size: 28px;
+    }
+
+    .app-logo {
+      display: block;
+      margin: 0 auto 10px;
+      width: 90px;
+      height: auto;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .quick-suggestions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      overflow: hidden;
+      white-space: nowrap;
+      margin-top: -18px;
+      margin-bottom: 22px;
+      position: relative;
+      padding-right: 44px;
+    }
+
+    .quick-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      background: #f5f5f5;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      border: 1px solid #eee;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .quick-thumb {
+      width: 32px;
+      height: 44px;
+      object-fit: cover;
+      border-radius: 4px;
+      background: #e9e9e9;
+    }
+
+    .quick-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+    }
+
+    .quick-next {
+      position: absolute;
+      right: 0;
+      border: none;
+      background: #667eea;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .quick-next:hover { background: #5568d3; }
+
+    .back-btn {
+      padding: 12px 16px;
+      background: #e0e0e0;
+      color: #333;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .back-btn:hover {
+      background: #d5d5d5;
+      transform: translateY(-2px);
+    }
+
+    .back-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .search-box input {
+      flex: 1;
+      min-width: 180px;
+      padding: 12px 15px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 8px rgba(102,126,234,0.2);
+    }
+
+    .search-box button {
+      padding: 12px 25px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .search-box button:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+    }
+
+    .anime-info { margin-top: 30px; }
+
+    #title {
+      color: #333;
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+
+    #image {
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      display: block;
+      transition: transform 0.2s ease;
+    }
+
+    #image:hover {
+      transform: scale(1.03);
+    }
+
+    #synopsis {
+      color: #555;
+      line-height: 1.6;
+      font-size: 14px;
+      text-align: justify;
+    }
+
+    .error {
+      color: #e74c3c;
+      padding: 10px;
+      background: #fadbd8;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #999;
+      padding: 40px 20px;
+      font-style: italic;
+    }
+
+    .results {
+      margin-top: 20px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .result-item {
+      display: grid;
+      grid-template-columns: 70px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      background: #fafafa;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .result-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+
+    .result-thumb {
+      width: 70px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: #f0f0f0;
+    }
+
+    .result-btn {
+      padding: 8px 12px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .result-btn:hover {
+      background: #5568d3;
+    }
+
+    .favorites {
+      margin-top: 24px;
+      padding-top: 12px;
+      border-top: 1px dashed #ddd;
+    }
+
+    .favorites h2 {
+      font-size: 16px;
+      color: #444;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .fav-list { display: grid; gap: 10px; }
+
+    .fav-toggle {
+      border: none;
+      background: #e0e0e0;
+      color: #333;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .fav-toggle:hover {
+      background: #d5d5d5;
+    }
+
+    .favorites.collapsed .fav-list {
+      display: none;
+    }
+
+    .fav-item {
+      display: grid;
+      grid-template-columns: 50px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 8px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      background: #fafafa;
+    }
+
+    .fav-thumb {
+      width: 50px;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 4px;
+      background: #e9e9e9;
+    }
+
+    .fav-actions { display: flex; gap: 6px; }
+
+    .fav-btn {
+      padding: 6px 8px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .fav-open { background: #667eea; color: white; }
+    .fav-remove { background: #e0e0e0; color: #333; }
+
+    .music-player {
+      position: fixed;
+      left: 16px;
+      bottom: 16px;
+      z-index: 999;
+    }
+
+    .music-btn {
+      border: none;
+      background: #667eea;
+      color: white;
+      padding: 10px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 14px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+    }
+
+    .music-btn:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+    }
+
+    .login-modal { display: none; }
+
+    .login-card {
+      width: min(420px, 100%);
+      margin: 22px auto 8px;
+      padding: 24px 22px;
+      border: 1px solid #eef0ff;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8f9ff 100%);
+      box-shadow: 0 18px 38px rgba(102,126,234,0.12);
+    }
+
+    .login-card h3 { margin-bottom: 10px; color: #333; text-align: center; }
+    .login-card p { color: #666; font-size: 14px; margin-bottom: 14px; text-align: center; line-height: 1.5; }
+
+    .login-card input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .login-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .login-btn {
+      border: none;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: transform 0.2s;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .login-primary { background: #667eea; color: white; }
+    .login-primary:hover { background: #5568d3; }
+
+    .login-secondary { background: #e0e0e0; color: #333; }
+    .login-secondary:hover { background: #d5d5d5; }
+
+    .login-skip { background: transparent; color: #667eea; }
+    .login-skip:hover { text-decoration: underline; }
+
+    .landing-shell {
+      min-height: calc(100vh - 80px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .landing-hero {
+      text-align: center;
+      padding: 8px 0 4px;
+    }
+
+    .landing-logo {
+      width: 120px;
+      height: auto;
+      display: block;
+      margin: 0 auto 18px;
+      filter: drop-shadow(0 12px 26px rgba(102,126,234,0.28));
+    }
+
+    .landing-title {
+      color: #667eea;
+      font-size: 34px;
+      margin-bottom: 10px;
+    }
+
+    .landing-description {
+      max-width: 420px;
+      margin: 0 auto;
+      color: #5f6475;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .saved-accounts {
+      margin-top: 18px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .saved-accounts-label {
+      font-size: 13px;
+      color: #7a7f91;
+      text-align: left;
+    }
+
+    .saved-account-btn {
+      width: 100%;
+      border: 1px solid #e2e6ff;
+      background: white;
+      color: #2f3441;
+      padding: 12px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .saved-account-btn:hover {
+      transform: translateY(-2px);
+      border-color: #667eea;
+      box-shadow: 0 10px 24px rgba(102,126,234,0.15);
+    }
+
+    .saved-account-name {
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .saved-account-email {
+      font-size: 12px;
+      color: #848aa0;
+      text-align: left;
+    }
+
+    .session-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin: -6px 0 14px;
+      padding: 10px 12px;
+      background: #f6f8ff;
+      border: 1px solid #e7ecff;
+      border-radius: 10px;
+    }
+
+    .session-bar p {
+      color: #555;
+      font-size: 13px;
+      margin: 0;
+    }
+
+    .session-logout {
+      border: none;
+      background: transparent;
+      color: #667eea;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .session-logout:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 14px; }
+      .container { padding: 22px 18px; }
+      .landing-title { font-size: 28px; }
+      .search-box { flex-direction: column; }
+      .search-box button,
+      .back-btn,
+      .search-box input { width: 100%; }
+      .session-bar { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container"></div>
+
+  <!-- LOGIN MODAL (mantÃ©m vanilla JS por agora) -->
+  <div class="login-modal" id="loginModal">
+    <div class="login-card">
+      <h3>Bem-vindo</h3>
+      <p>Podes fazer um login simples, usar "Google" (simulado) ou saltar.</p>
+      <input id="loginName" type="text" placeholder="O teu nome (ex: Filipe)">
+      <input id="loginEmail" type="email" placeholder="Email (opcional)">
+      <div class="login-actions">
+        <button id="loginSave" class="login-btn login-primary">Guardar nome</button>
+        <button id="loginGoogle" class="login-btn login-secondary">Login com Google (simulado)</button>
+        <button id="loginSkip" class="login-btn login-skip">Saltar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAYER MUSICA -->
+  <div class="music-player">
+    <button id="musicToggle" class="music-btn">Play</button>
+  </div>
+
+  <audio id="bgMusic" src="MusicaFundo.mp3" loop autoplay></audio>
+
+  <script type="text/babel">
+
+    /**
+     * ARQUITETURA APP REACT
+     * 
+     * Componentes (Arquitetura Componentizada):
+     * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+     * App (gerencia estado global)
+     *  â”œ Header (logo + tÃ­tulo)
+     *  â”œ SearchBox (input + botÃµes)
+     *  â”œ QuickSuggestions (carousel)
+     *  â”œ AnimeCard (detalhe + botÃ£o favorito)
+     *  â”œ ResultsList (animes relacionados)
+     *  â”” FavoritesList (favoritos com toggle)
+     * 
+     * Estado Global:
+     * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+     * - currentAnime: anime selecionado (null | object)
+     * - searchResults: animes encontrados (array)
+     * - favorites: lista de favoritos (array, sincroniza localStorage)
+     * - quickSuggestions: carousel (array)
+     * - historyStack: histÃ³rico de navegaÃ§Ã£o (array)
+     * - user: dados do utilizador (null | {name, email})
+     * - isLoading: indicador de carregamento (bool)
+     */
+
+    // ========== CONSTANTS ==========
+    // Aqui guardamos os atalhos de animes populares (nome => ID da Jikan API)
+    // Quando pesquisas "death note", vai direto ao ID 1535 em vez de fazer uma busca
+
+    const ANIME_SHORTCUTS = {
+      "death note": 1535, "attack on titan": 16498, "shingeki no kyojin": 16498,
+      "naruto": 20, "one piece": 21, "bleach": 15, "demon slayer": 38000,
+      "kimetsu no yaiba": 38000, "jujutsu kaisen": 40748, "code geass": 1575,
+      "steins gate": 9253, "fullmetal alchemist": 121, "cowboy bebop": 1,
+      "evangelion": 30, "monster": 19, "hunter x hunter": 136, "vinland saga": 37521,
+      "spy x family": 50595, "chainsaw man": 44511, "one punch man": 30656,
+      "sword art online": 25739, "no game no life": 33674, "haikyuu": 33096,
+      "food wars": 32629, "oregairu": 27813, "silent voice": 56044, "koe no katachi": 56044
+    };
+
+    // ========== HELPERS ==========
+    // FunÃ§Ãµes auxiliares para simplificar operaÃ§Ãµes comuns
+
+    // Verifica se uma string Ã© um nÃºmero (usado para pesquisa por ID de anime)
+    function isNumeric(str) {
+      return !isNaN(str) && !isNaN(parseFloat(str));
+    }
+
+    // Calcula quÃ£o semelhante sÃ£o dois textos (para ordenar resultados de pesquisa)
+    // Retorna um valor entre 0 e 1 (1 = idÃªntico, 0 = totalmente diferente)
+    function calculateSimilarity(str1, str2) {
+      const s1 = (str1 || "").toLowerCase();
+      const s2 = (str2 || "").toLowerCase();
+      if (s1 === s2) return 1.0;
+      if (s1.includes(s2) || s2.includes(s1)) return 0.8;
+      let matches = 0;
+      for (let i = 0; i < Math.min(s1.length, s2.length); i++) {
+        if (s1[i] === s2[i]) matches++;
+      }
+      return matches / Math.max(s1.length, s2.length);
+    }
+
+    // Extrai informaÃ§Ãµes de temporada do tÃ­tulo do anime (ex: "Attack on Titan Season 2" => "Season 2")
+    function getSeasonLabel(title) {
+      if (!title) return "";
+      const t = title.toLowerCase();
+      if (t.match(/season\s*3|3rd\s*season|s\s*3/)) return "Season 3";
+      if (t.match(/season\s*2|2nd\s*season|s\s*2/)) return "Season 2";
+      return "";
+    }
+
+    // Normaliza o tÃ­tulo para comparaÃ§Ã£o (remove temporadas, nÃºmeros e caracteres especiais)
+    // Exemplo: "Attack on Titan Season 2 (2013)" => "attack on titan"
+    function normalizeBaseTitle(title) {
+      if (!title) return "";
+      return title.toLowerCase()
+        .replace(/\([^\)]*\)/g, " ")
+        .replace(/season\s*\d+|\d+nd\s*season|\d+rd\s*season/g, " ")
+        .replace(/final\s*season|part\s*\d+|cour\s*\d+/g, " ")
+        .replace(/\b\d+\b/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function shuffleList(list) {
+      const arr = list.slice();
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // ========== LOCALSTORAGE FUNCTIONS ==========
+    // Guardam e carregam dados no navegador (persistem mesmo apÃ³s fechar a app)
+
+    // Carrega a lista de favoritos do localStorage
+    // Retorna um array vazio se nÃ£o existirem favoritos ou se houver erro
+    function getFavorites() {
+      try {
+        return JSON.parse(localStorage.getItem("animeFavorites")) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    // Guarda a lista de favoritos no localStorage
+    function setFavorites(list) {
+      localStorage.setItem("animeFavorites", JSON.stringify(list));
+    }
+
+    // Verifica se um anime (pelo ID) jÃ¡ estÃ¡ nos favoritos
+    function isFavorite(id) {
+      return getFavorites().some(a => a.mal_id === id);
+    }
+
+    // Carrega os dados do utilizador (nome e email do login)
+    // ATUALIZAÃ‡ÃƒO: localStorage key mudou de "nickelUser" para "nickyUser" para consistÃªncia de branding
+    function loadUser() {
+      try {
+        return JSON.parse(localStorage.getItem("nickyUser")) || null;
+      } catch {
+        return null;
+      }
+    }
+
+    // Guarda os dados do utilizador no localStorage
+    // ATUALIZAÃ‡ÃƒO: localStorage key mudou de "nickelUser" para "nickyUser"
+    function saveUser(user) {
+      localStorage.setItem("nickyUser", JSON.stringify(user));
+    }
+
+    function clearUser() {
+      localStorage.removeItem("nickyUser");
+    }
+
+    function loadSavedAccounts() {
+      try {
+        return JSON.parse(localStorage.getItem("nickySavedAccounts")) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveSavedAccounts(list) {
+      localStorage.setItem("nickySavedAccounts", JSON.stringify(list));
+    }
+
+    function rememberAccount(user) {
+      if (!user?.name) return;
+      const next = [
+        user,
+        ...loadSavedAccounts().filter(account =>
+          (account.email || "").toLowerCase() !== (user.email || "").toLowerCase() || account.name !== user.name
+        )
+      ].slice(0, 5);
+      saveSavedAccounts(next);
+    }
+
+    // ========== API FUNCTIONS ==========
+    // FunÃ§Ãµes que fazem pedidos Ã  Jikan API (anime database) para obter dados
+
+    /**
+     * Pesquisa um anime por query (pode ser nome, ID, ou atalho)
+     * - Se for atalho conhecido (ex: "death note"), vai direto ao ID
+     * - Se for nÃºmero, trata como ID de anime
+     * - Caso contrÃ¡rio, faz busca por nome
+     * Retorna: [animeSelected, resultsArray] - um array com o anime principal e resultados relacionados
+     */
+    async function fetchAnimeByQuery(query) {
+      const q = String(query || "").trim();
+      const qLower = q.toLowerCase();
+
+      let url = "";
+      if (ANIME_SHORTCUTS[qLower]) {
+        // Se Ã© um atalho conhecido, usa o ID direto (mais rÃ¡pido)
+        url = `https://api.jikan.moe/v4/anime/${ANIME_SHORTCUTS[qLower]}`;
+      } else if (isNumeric(q)) {
+        // Se Ã© um nÃºmero, trata como ID de anime
+        url = `https://api.jikan.moe/v4/anime/${q}`;
+      } else {
+        // Caso contrÃ¡rio, faz uma busca por nome
+        url = `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}`;
+      }
+
+      const response = await fetch(url, { headers: { "Cache-Control": "no-cache" } });
+      if (!response.ok) throw new Error(`Erro HTTP ${response.status}`);
+
+      const data = await response.json();
+      if (!data.data) throw new Error("Sem dados");
+
+      let selected = null;
+      let results = [];
+
+      if (Array.isArray(data.data)) {
+        // Se recebeu mÃºltiplos resultados, ordena por similaridade
+        if (data.data.length === 0) throw new Error("Nenhum anime encontrado");
+        const sorted = data.data
+          .map(item => ({ item, score: calculateSimilarity(qLower, item.title) }))
+          .sort((a, b) => b.score - a.score)
+          .map(x => x.item);
+        selected = sorted[0]; // O primeiro (mais similar) Ã© o principal
+        results = sorted.slice(1, 11); // Os restantes sÃ£o sugestÃµes
+      } else {
+        // Se recebeu apenas um resultado direto
+        selected = data.data;
+      }
+
+      return [selected, results];
+    }
+
+    /**
+     * Procura animes similares ao atual usando o tÃ­tulo como referÃªncia
+     * Filtra resultados que tÃªm relaÃ§Ã£o com o tÃ­tulo normalizado (ex: outras temporadas)
+     * Volta para o "Ver mais" quando clicas um anime
+     */
+    async function fetchSimilarByTitle(title, currentId) {
+      if (!title) return [];
+      try {
+        const response = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(title)}`, {
+          headers: { "Cache-Control": "no-cache" }
+        });
+        if (!response.ok) return [];
+        const data = await response.json();
+        if (!Array.isArray(data.data)) return [];
+        return data.data.filter(a => {
+          if (a.mal_id === currentId) return false;
+          const base = normalizeBaseTitle(a.title || a.title_english || "");
+          return base && (base.includes(title) || title.includes(base));
+        }).slice(0, 10);
+      } catch {
+        return [];
+      }
+    }
+
+    /**
+     * Carrega sugestÃµes rÃ¡pidas que aparecem no topo (carousel)
+     * Mistura animes do top com animes aleatÃ³rios para dar variedade
+     * O carousel roda automaticamente a cada 3.5 segundos
+     */
+    async function fetchQuickSuggestions(total = 6, topCount = 1) {
+      const randomCount = Math.max(total - topCount, 0);
+
+      const randomRequests = Array.from({ length: Math.max(randomCount * 2, 4) }, () =>
+        fetch("https://api.jikan.moe/v4/random/anime")
+          .then(res => res.ok ? res.json() : null)
+          .then(data => data?.data || null)
+          .catch(() => null)
+      );
+
+      const topResponse = await fetch("https://api.jikan.moe/v4/top/anime?limit=25");
+      const topData = topResponse.ok ? await topResponse.json() : { data: [] };
+      const topList = shuffleList(topData.data || []).slice(0, topCount);
+
+      // Recolhe animes aleatÃ³rios em paralelo (mais rÃ¡pido que fazer pedidos sequenciais)
+      const randomItems = await Promise.all(randomRequests);
+      const uniq = new Map();
+      randomItems.filter(Boolean).forEach(a => {
+        if (!uniq.has(a.mal_id)) uniq.set(a.mal_id, a);
+      });
+
+      const randomList = shuffleList(Array.from(uniq.values())).slice(0, randomCount);
+
+      // Mistura animes do top com aleatÃ³rios de forma equilibrada
+      const mixed = [];
+      let i = 0;
+      while (mixed.length < total && (topList[i] || randomList[i])) {
+        if (topList[i]) mixed.push(topList[i]);
+        if (randomList[i] && mixed.length < total) mixed.push(randomList[i]);
+        i++;
+      }
+
+      return mixed;
+    }
+
+    // ========== REACT COMPONENTS ==========
+    // Cada componente Ã© uma parte da interface que pode ser reutilizada
+
+    // Header: Logo e tÃ­tulo da aplicaÃ§Ã£o
+    // ATUALIZAÃ‡ÃƒO: Logo mudou para nickyLogov2png.png (era NickyLogo.jpeg)
+    // ATUALIZAÃ‡ÃƒO: Emoji do tÃ­tulo agora Ã© imagem do mascote (NickyMascoteCutePlaceholder.jpeg)
+    // ATUALIZAÃ‡ÃƒO: Texto agora Ã© "ðŸª™ Nicky Anime" (era "ðŸª™ Nickel Anime")
+    function Header() {
+      return (
+        <div>
+          <img className="app-logo" src="nickyLogov2png.png" alt="Nicky Anime Logo" />
+          <h1 className="app-title">Nicky Anime</h1>
+          <p style={{ textAlign: 'center', color: '#666', marginBottom: '16px', fontSize: '14px' }}>
+            Pesquisa o teu anime pelo nome e guarda os teus favoritos na lista abaixo.
+          </p>
+        </div>
+      );
+    }
+
+    function LandingLogin({ savedAccounts, onLogin }) {
+      const [name, setName] = React.useState("");
+      const [email, setEmail] = React.useState("");
+
+      const submitLogin = () => {
+        const trimmedName = name.trim();
+        if (!trimmedName) return;
+        onLogin({ name: trimmedName, email: email.trim() });
+      };
+
+      return (
+        <div className="landing-shell">
+          <div style={{ width: "100%" }}>
+            <div className="landing-hero">
+              <img className="landing-logo" src="nickyLogov2png.png" alt="Nicky Anime Logo" />
+              <h1 className="landing-title">Nicky Anime</h1>
+              <p className="landing-description">
+                Descobre animes, guarda favoritos e entra rapidamente com a tua conta ou com o acesso Google.
+              </p>
+            </div>
+
+            <div className="login-card">
+              <h3>Entrar</h3>
+              <p>Primeiro aparece so o branding da app e aqui em baixo escolhes como queres entrar.</p>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="O teu nome"
+              />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email (opcional)"
+              />
+              <div className="login-actions">
+                <button className="login-btn login-primary" onClick={submitLogin}>Entrar</button>
+                <button
+                  className="login-btn login-secondary"
+                  onClick={() => onLogin({ name: "Utilizador Google", email: "google@demo.com", provider: "google" })}
+                >
+                  Continuar com Google
+                </button>
+              </div>
+
+              {savedAccounts.length > 0 && (
+                <div className="saved-accounts">
+                  <div className="saved-accounts-label">Contas guardadas neste browser</div>
+                  {savedAccounts.map((account, index) => (
+                    <button
+                      key={`${account.name}-${account.email || "sem-email"}-${index}`}
+                      className="saved-account-btn"
+                      onClick={() => onLogin(account)}
+                    >
+                      <div>
+                        <div className="saved-account-name">{account.name}</div>
+                        <div className="saved-account-email">{account.email || "Sem email guardado"}</div>
+                      </div>
+                      <span>Entrar</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // SearchBox: Input de pesquisa + botÃ£o de pesquisa + botÃ£o voltar
+    // Props: onSearch (funÃ§Ã£o chamada ao pesquisar), onBack (voltar atrÃ¡s), isBackDisabled (desabilita botÃ£o voltar se sem histÃ³rico)
+    function SearchBox({ onSearch, onBack, isBackDisabled }) {
+      const [text, setText] = React.useState("");
+
+      const handleSearch = () => {
+        if (text.trim()) {
+          onSearch(text);
+          setText("");
+        }
+      };
+
+      return (
+        <div className="search-box">
+          <button className="back-btn" disabled={isBackDisabled} onClick={onBack}>
+            Voltar
+          </button>
+          <input
+            type="text"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
+            placeholder="Ex: death note, naruto, demon slayer..."
+            autoComplete="off"
+          />
+          <button onClick={handleSearch}>Pesquisar</button>
+        </div>
+      );
+    }
+
+    // QuickSuggestions: Carousel de animes recomendados que roda automaticamente
+    // Props: items (array de animes), onSelect (funÃ§Ã£o ao clicar num anime)
+    function QuickSuggestions({ items, onSelect, onRefresh }) {
+      const [display, setDisplay] = React.useState(items);
+      const timerRef = React.useRef(null);
+
+      React.useEffect(() => {
+        setDisplay(items);
+        if (timerRef.current) clearInterval(timerRef.current);
+        // Configura o carousel para rodar automaticamente a cada 3.5 segundos
+        if (items.length > 1) {
+          timerRef.current = setInterval(() => {
+            setDisplay(prev => [...prev.slice(1), prev[0]]); // Move primeiro para o fim
+          }, 3500);
+        }
+        return () => { if (timerRef.current) clearInterval(timerRef.current); };
+      }, [items]);
+
+      if (!display || display.length === 0) {
+        return <div className="quick-suggestions"><small style={{color: '#999'}}>Sem sugestÃµes neste momento</small></div>;
+      }
+
+      return (
+        <div className="quick-suggestions">
+          {display.map(a => (
+            <div key={a.mal_id} className="quick-item" onClick={() => onSelect(a)}>
+              <img className="quick-thumb" src={a.images?.jpg?.small_image_url} alt={a.title} />
+              <span>{a.title}</span>
+            </div>
+          ))}
+          <button className="quick-next" onClick={() => setDisplay(p => [...p.slice(1), p[0]])}>→</button>
+        </div>
+      );
+    }
+
+    // AnimeCard: Mostra os detalhes completos de um anime (titulo, imagem, sinopse, botÃ£o favoritos)
+    // Props: anime (objeto do anime), isFav (boolean), onAddFav/onRemFav (funÃ§Ãµes de favoritos)
+    function AnimeCard({ anime, isFav, onAddFav, onRemFav }) {
+      const title = anime.title || "Sem titulo";
+      const titleEn = anime.title_english || "";
+      const seasonLabel = getSeasonLabel(title);
+      const imageUrl = anime.images?.jpg?.large_image_url;
+      const synopsis = anime.synopsis || "N/A";
+
+      return (
+        <div className="anime-info">
+          <h2 id="title">{title}
+            {seasonLabel && <span style={{color: '#667eea', fontSize: '14px'}}> {seasonLabel}</span>}
+          </h2>
+          {titleEn && titleEn !== "N/A" && (
+            <p style={{color: '#999', marginBottom: '15px', fontStyle: 'italic'}}>{titleEn}</p>
+          )}
+          {imageUrl && <img id="image" src={imageUrl} alt={title} />}
+          <p id="synopsis">{synopsis}</p>
+          <div style={{marginTop: '12px'}}>
+            <button
+              className={`fav-btn ${isFav ? "fav-remove" : "fav-open"}`}
+              onClick={() => { isFav ? onRemFav(anime.mal_id) : onAddFav(anime); }}
+            >
+              {isFav ? "★ Remover dos favoritos" : "☆ Guardar nos favoritos"}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // ResultsList: Lista de animes relacionados ao atual (para escolher mais animes a ver)
+    // Props: items (array de animes), onSelect (ao clicar muda o anime principal)
+    function ResultsList({ items, onSelect }) {
+      if (!items || items.length === 0) return null;
+      return (
+        <div className="results">
+          {items.map(a => (
+            <div key={a.mal_id} className="result-item">
+              <img className="result-thumb" src={a.images?.jpg?.small_image_url} alt={a.title} />
+              <div>
+                <div><strong>{a.title}</strong> {a.year && `(${a.year})`}</div>
+                {a.title_english && <div style={{color: '#888', fontSize: '12px'}}>{a.title_english}</div>}
+              </div>
+              <button className="result-btn" onClick={() => onSelect(a)}>Ver</button>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // FavoritesList: Mostra todos os animes guardados nos favoritos (pode colapsar a lista)
+    // Props: items (array de favoritos), onSelect (ao clicar muda o anime principal), onRemove (remove dos favoritos)
+    function FavoritesList({ items, onSelect, onRemove, userName }) {
+      const [collapsed, setCollapsed] = React.useState(localStorage.getItem("favoritesCollapsed") === "1");
+
+      React.useEffect(() => {
+        localStorage.setItem("favoritesCollapsed", collapsed ? "1" : "0");
+      }, [collapsed]);
+
+      return (
+        <div className={`favorites ${collapsed ? "collapsed" : ""}`}>
+          <h2>
+            Favoritos {userName && <span>de {userName}</span>}
+            <button className="fav-toggle" onClick={() => setCollapsed(!collapsed)}>
+              {collapsed ? "Mostrar" : "Ocultar"}
+            </button>
+          </h2>
+          <div className="fav-list">
+            {items.length === 0 ? (
+              <small style={{color: '#999'}}>Sem favoritos ainda.</small>
+            ) : (
+              items.map(f => (
+                <div key={f.mal_id} className="fav-item">
+                  <img className="fav-thumb" src={f.image} alt={f.title} />
+                  <div>{f.title}</div>
+                  <div className="fav-actions">
+                    <button className="fav-btn fav-open" onClick={() => onSelect({mal_id: f.mal_id})}>Ver</button>
+                    <button className="fav-btn fav-remove" onClick={() => onRemove(f.mal_id)}>Remover</button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // ========== APP COMPONENT (Principal) ==========
+    // Gere todo o estado da aplicaÃ§Ã£o e coordena todos os componentes
+    function App() {
+      // ESTADO GLOBAL DA APP:
+      const [current, setCurrent] = React.useState(null); // Anime que se estÃ¡ a ver agora
+      const [results, setResults] = React.useState([]); // Animes relacionados (ver mais)
+      const [favs, setFavsState] = React.useState(getFavorites()); // Lista de favoritos (sincroniza com localStorage)
+      const [quick, setQuick] = React.useState([]); // Carousel de sugestÃµes (topo da pÃ¡gina)
+      const [history, setHistory] = React.useState([]); // HistÃ³rico para o botÃ£o "Voltar"
+      const [user, setUserState] = React.useState(null); // Dados do utilizador apÃ³s login
+      const [savedAccounts, setSavedAccounts] = React.useState(loadSavedAccounts());
+      const [loading, setLoading] = React.useState(false); // Indicador de carregamento (mostra "Carregando...")
+
+      // Carrega o carousel de sugestÃµes ao abrir a app
+      const loadQuick = async () => {
+        try {
+          const suggestions = await fetchQuickSuggestions(6, 1);
+          setQuick(suggestions);
+        } catch (err) {
+          console.error("Quick suggestions error:", err);
+        }
+      };
+
+      React.useEffect(() => {
+        loadQuick();
+      }, []);
+
+      React.useEffect(() => {
+        const lastUser = loadUser();
+        if (lastUser?.name) {
+          rememberAccount(lastUser);
+          clearUser();
+          setSavedAccounts(loadSavedAccounts());
+        }
+      }, []);
+
+      // Handler: quando faz pesquisa no input (Enter ou botÃ£o pesquisar)
+      // Busca o anime e guarda no histÃ³rico
+      const handleSearch = async (query) => {
+        try {
+          setLoading(true);
+          const [anime, resultsArray] = await fetchAnimeByQuery(query);
+          if (anime) {
+            setCurrent(anime);
+            setResults(resultsArray);
+          }
+        } catch (err) {
+          alert("Erro: " + err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      // Handler: botÃ£o "Voltar" - volta para o anime anterior
+      // Usa o histÃ³rico para saber qual era o anterior
+      const handleGoBack = () => {
+        if (history.length === 0) return;
+        const newHistory = [...history];
+        const prev = newHistory.pop();
+        setCurrent(prev);
+        setHistory(newHistory);
+      };
+
+      // Handler: quando clica num anime (dos resultados, favoritos, ou sugestÃµes)
+      // Carrega esse anime como principal e procura animes similares para "Ver mais"
+      const handleSelect = React.useCallback(async (anime) => {
+        if (current && current.mal_id !== anime.mal_id) {
+          setHistory(prev => [...prev, current]);
+        }
+        setCurrent(anime);
+
+        try {
+          const baseTitle = normalizeBaseTitle(anime.title || anime.title_english || "");
+          const similar = await fetchSimilarByTitle(baseTitle, anime.mal_id);
+          setResults(similar);
+        } catch (err) {
+          console.error("Similar fetch error:", err);
+        }
+      }, [current]);
+
+      // Handler: adiciona um anime aos favoritos
+      // Guarda tambÃ©m no localStorage para persistir dados
+      const handleAddFav = (anime) => {
+        if (!anime || isFavorite(anime.mal_id)) return;
+        const newFavs = [{
+          mal_id: anime.mal_id,
+          title: anime.title || anime.title_english,
+          image: anime.images?.jpg?.small_image_url || ""
+        }, ...favs];
+        setFavsState(newFavs);
+        setFavorites(newFavs);
+      };
+
+      // Handler: remove um anime dos favoritos
+      const handleRemFav = (id) => {
+        const newFavs = favs.filter(a => a.mal_id !== id);
+        setFavsState(newFavs);
+        setFavorites(newFavs);
+      };
+
+      const handleLogin = (nextUser) => {
+        if (!nextUser?.name) return;
+        saveUser(nextUser);
+        rememberAccount(nextUser);
+        setUserState(nextUser);
+        setSavedAccounts(loadSavedAccounts());
+      };
+
+      const handleLogout = () => {
+        clearUser();
+        setUserState(null);
+        setSavedAccounts(loadSavedAccounts());
+      };
+
+      if (!user) {
+        return <LandingLogin savedAccounts={savedAccounts} onLogin={handleLogin} />;
+      }
+
+      return (
+        <>
+          <Header />
+          <div className="session-bar">
+            <p>Ola, {user.name}! Estas dentro da tua conta.</p>
+            <button className="session-logout" onClick={handleLogout}>Trocar de conta</button>
+          </div>
+          <SearchBox onSearch={handleSearch} onBack={handleGoBack} isBackDisabled={history.length === 0} />
+          <QuickSuggestions items={quick} onSelect={handleSelect} onRefresh={loadQuick} />
+          {loading && <p className="empty-state">Carregando...</p>}
+          {!loading && current && (
+            <AnimeCard anime={current} isFav={isFavorite(current.mal_id)} onAddFav={handleAddFav} onRemFav={handleRemFav} />
+          )}
+          {!loading && !current && <p className="empty-state">Pesquisa um anime para ver detalhes.</p>}
+          <ResultsList items={results} onSelect={handleSelect} />
+          <FavoritesList items={favs} onSelect={handleSelect} onRemove={handleRemFav} userName={user?.name} />
+        </>
+      );
+    }
+
+    // ========== RENDER ==========
+    // Aqui renderiza o React na pÃ¡gina (no elemento .container)
+    const root = ReactDOM.createRoot(document.querySelector(".container"));
+    root.render(<App />);
+
+    // ========== LOGIN & MUSIC (Vanilla JS) ==========
+    // CÃ³digo JavaScript tradicional para funcionalidades fora do React
+    const loginModal = null;
+    const loginName = null;
+    const loginEmail = null;
+    const loginSave = null;
+    const loginGoogle = null;
+    const loginSkip = null;
+
+    // Elementos de controlo de mÃºsica
+    const bgMusic = document.getElementById("bgMusic");
+    const musicToggle = document.getElementById("musicToggle");
+    let isPlaying = false; // Estado para saber se estÃ¡ a tocar ou parado
+
+    // Atualiza o texto do botÃ£o mÃºsica (Play â–¶ï¸ ou Pause â¸ï¸)
+    function updateMusicButton() {
+      musicToggle.textContent = isPlaying ? "Pause" : "Play";
+    }
+
+    // Tenta reproduzir a mÃºsica automaticamente ao carregar (alguns navegadores bloqueiam)
+    function tryAutoPlay() {
+      const playPromise = bgMusic.play();
+      if (playPromise?.catch) {
+        playPromise.catch(() => {
+          isPlaying = false;
+          updateMusicButton();
+        });
+      }
+    }
+
+    // Event listener: ao clicar no botÃ£o de mÃºsica, toca/pausa a mÃºsica de fundo
+    musicToggle.addEventListener("click", () => {
+      if (!isPlaying) {
+        bgMusic.play();
+        isPlaying = true;
+      } else {
+        bgMusic.pause();
+        isPlaying = false;
+      }
+      updateMusicButton();
+    });
+
+    // Event listeners: atualiza o botÃ£o quando a mÃºsica pausa ou toca
+    bgMusic.addEventListener("pause", () => { isPlaying = false; updateMusicButton(); });
+    bgMusic.addEventListener("play", () => { isPlaying = true; updateMusicButton(); });
+
+    // Event listener: botÃ£o "Guardar nome" no modal de login
+    // Guarda os dados do utilizador e recarrega a pÃ¡gina para mostrar o nome
+    if (loginSave) { }
+
+    // ========== INICIALIZAÃ‡ÃƒO ==========
+    // Mostra o modal de login se o utilizador nÃ£o estiver registado
+    // Tenta reproduzir a mÃºsica de fundo (alguns navegadores podem bloquear)
+    
+    tryAutoPlay();
+
+  </script>
+</body>
+</html>
+
+

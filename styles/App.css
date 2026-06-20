@@ -1,0 +1,538 @@
+/* CSS: Estilo da página - Reset + layout principal + cards + modal + música */
+
+/* reset global: evita estilos default diferentes por browser */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* body: gradiente + imagem de fundo 
+   "fixed" cria efeito bonito quando scroll */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.75) 0%, rgba(118, 75, 162, 0.75) 100%),
+    url('FundoTopAnime.jpg') center/cover no-repeat fixed;
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.app {
+  width: 100%;
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* container branco central */
+.container {
+  max-width: 600px;
+  width: 100%;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* título */
+.app-title {
+  text-align: center;
+  color: #667eea;
+  margin-bottom: 25px;
+  font-size: 28px;
+}
+
+/* logo */
+.app-logo {
+  display: block;
+  margin: 0 auto 10px;
+  width: 90px;
+  height: auto;
+}
+
+/* subtitle */
+.subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+/* user greeting */
+.user-greeting {
+  text-align: center;
+  color: #555;
+  margin: -6px 0 14px;
+  font-size: 13px;
+}
+
+/* caixa da pesquisa: input + botões */
+.search-box {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+/* input da pesquisa */
+.search-input {
+  flex: 1;
+  min-width: 180px;
+  padding: 12px 15px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
+}
+
+/* botão pesquisar */
+.search-btn {
+  padding: 12px 25px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.search-btn:hover {
+  background: #5568d3;
+  transform: translateY(-2px);
+}
+
+.search-btn:active {
+  transform: scale(0.98);
+}
+
+/* botão voltar (histórico) - desativado quando não há nada para voltar */
+.back-btn {
+  padding: 12px 16px;
+  background: #e0e0e0;
+  color: #333;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+}
+
+.back-btn:hover {
+  background: #d5d5d5;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.back-btn:active {
+  transform: scale(0.98);
+}
+
+.back-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Sugestões rápidas (rotativas) - recomendado para "descoberta" */
+.quick-suggestions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-top: -18px;
+  margin-bottom: 22px;
+  position: relative;
+  padding-right: 44px;
+}
+
+.quick-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid #eee;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.quick-thumb {
+  width: 32px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: #e9e9e9;
+  transition: transform 0.2s ease;
+}
+
+.quick-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.quick-item:hover .quick-thumb {
+  transform: scale(1.05);
+}
+
+/* botão "próximo" (manual) - útil quando o user não quer esperar pela rotação automática */
+.quick-next {
+  position: absolute;
+  right: 0;
+  border: none;
+  background: #667eea;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.quick-next:hover {
+  background: #5568d3;
+}
+
+/* painel principal */
+.anime-info {
+  margin-top: 30px;
+}
+
+#title {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.season-label {
+  color: #667eea;
+  font-size: 14px;
+}
+
+#image {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  display: block;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#image:hover {
+  transform: scale(1.03);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
+}
+
+#synopsis {
+  color: #555;
+  line-height: 1.6;
+  font-size: 14px;
+  text-align: justify;
+}
+
+.error {
+  color: #e74c3c;
+  padding: 10px;
+  background: #fadbd8;
+  border-radius: 5px;
+  margin: 10px 0;
+}
+
+.empty-state {
+  text-align: center;
+  color: #999;
+  padding: 40px 20px;
+  font-style: italic;
+}
+
+/* lista de sugestões relacionadas */
+.results {
+  margin-top: 20px;
+  display: grid;
+  gap: 12px;
+}
+
+.result-item {
+  display: grid;
+  grid-template-columns: 70px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fafafa;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.result-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.result-thumb {
+  width: 70px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #f0f0f0;
+  transition: transform 0.2s ease;
+}
+
+.result-item:hover .result-thumb {
+  transform: scale(1.04);
+}
+
+.result-btn {
+  padding: 8px 12px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.result-btn:hover {
+  background: #5568d3;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+}
+
+/* favoritos */
+.favorites {
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px dashed #ddd;
+}
+
+.favorites h2 {
+  font-size: 16px;
+  color: #444;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.fav-list {
+  display: grid;
+  gap: 10px;
+}
+
+/* botão de abrir/fechar favoritos */
+.fav-toggle {
+  border: none;
+  background: #e0e0e0;
+  color: #333;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.fav-toggle:hover {
+  background: #d5d5d5;
+}
+
+.favorites.collapsed .fav-list {
+  display: none;
+}
+
+.fav-item {
+  display: grid;
+  grid-template-columns: 50px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fafafa;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fav-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.fav-thumb {
+  width: 50px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: #e9e9e9;
+  transition: transform 0.2s ease;
+}
+
+.fav-item:hover .fav-thumb {
+  transform: scale(1.04);
+}
+
+.fav-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.fav-btn {
+  padding: 6px 8px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fav-open {
+  background: #667eea;
+  color: white;
+}
+
+.fav-remove {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.fav-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* player música fixo - fica sempre visível por cima do conteúdo */
+.music-player {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 999;
+}
+
+.music-btn {
+  border: none;
+  background: #667eea;
+  color: white;
+  padding: 10px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 14px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.music-btn:hover {
+  background: #5568d3;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
+}
+
+/* modal login simulado - "display:none" até se decidir abrir (JS adiciona .show) */
+.login-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* quando tem .show, passa a flex e aparece */
+.login-modal.show {
+  display: flex;
+}
+
+.login-card {
+  width: min(420px, 92vw);
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.login-card h3 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.login-card p {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+.login-card input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.login-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.login-btn {
+  border: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.login-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.login-btn:active {
+  transform: scale(0.98);
+}
+
+.login-primary {
+  background: #667eea;
+  color: white;
+}
+
+.login-primary:hover {
+  background: #5568d3;
+}
+
+.login-secondary {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.login-secondary:hover {
+  background: #d5d5d5;
+}
+
+.login-skip {
+  background: transparent;
+  color: #667eea;
+}
+
+.login-skip:hover {
+  box-shadow: none;
+  text-decoration: underline;
+}
