@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DevicePhoneMobileIcon } from '@heroicons/react/24/outline';
+import BrandLogo from './BrandLogo';
 
 const InstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -54,7 +54,7 @@ const InstallPrompt = () => {
 
   return (
     <div className="install-banner">
-      <DevicePhoneMobileIcon className="w-5 h-5" aria-hidden="true" />
+      <BrandLogo size="xs" iconOnly className="install-banner-logo" />
       <span className="install-banner-text">Adiciona o Nicky Anime ao teu ecrã inicial!</span>
       <button className="install-banner-btn" onClick={handleInstall}>
         Instalar

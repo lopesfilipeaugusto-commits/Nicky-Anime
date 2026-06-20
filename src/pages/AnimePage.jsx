@@ -14,7 +14,9 @@ import BottomNav from '../components/BottomNav';
 import { useFavorites } from '../hooks/useFavorites';
 import { useAnimeLists } from '../hooks/useAnimeLists';
 import { useAuth } from '../context/AuthContext';
-import { ExclamationTriangleIcon, FilmIcon } from '@heroicons/react/24/outline';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import BrandLogo from '../components/BrandLogo';
+import { fetchExploreAnimes, getExploreCategoryLabel } from '../services/jikanExplore';
 import '../styles/App.css';
 
 // Avatar de foto do Google — aparece ao lado do nome do usuário no cabeçalho
@@ -95,6 +97,49 @@ const normalizeBaseTitle = (title) => {
     .trim();
 };
 
+const FEED_RANDOM_RATIO = 0.3;
+const RANDOM_FETCH_DELAY_MS = 350;
+
+const shuffleArray = (items) => {
+  const arr = [...items];
+  for (let i = arr.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+};
+
+const fetchRandomAnimes = async (count, excludeIds) => {
+  const animes = [];
+  const maxAttempts = count * 4;
+
+  for (let attempt = 0; attempt < maxAttempts && animes.length < count; attempt += 1) {
+    try {
+      const response = await fetch('https://api.jikan.moe/v4/random/anime');
+      if (response.status === 429) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        continue;
+      }
+      if (!response.ok) continue;
+
+      const data = await response.json();
+      const anime = data?.data;
+      if (!anime?.mal_id || excludeIds.has(anime.mal_id)) continue;
+
+      excludeIds.add(anime.mal_id);
+      animes.push(anime);
+    } catch {
+      // ignora falhas pontuais de random
+    }
+
+    if (animes.length < count) {
+      await new Promise((resolve) => setTimeout(resolve, RANDOM_FETCH_DELAY_MS));
+    }
+  }
+
+  return animes;
+};
+
 function AnimePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -112,11 +157,21 @@ function AnimePage() {
   const { addFavorite, removeFavorite, isFavorite } = useFavorites();
   const { lists, addAnimeToList, createList } = useAnimeLists();
 
-  // --- NOVO: Estado e Lógica para a Timeline Infinita (Top Animes) ---
+  // --- Timeline infinita: mix de populares (70%) + random (30%) ---
   const [feedAnimes, setFeedAnimes] = useState([]);
   const [feedPage, setFeedPage] = useState(1);
   const [hasMoreFeed, setHasMoreFeed] = useState(true);
   const isFetchingRef = useRef(false);
+  const feedAnimesRef = useRef([]);
+
+  const [exploreMode, setExploreMode] = useState(false);
+  const [exploreAnimes, setExploreAnimes] = useState([]);
+  const [exploreLoading, setExploreLoading] = useState(false);
+  const [exploreMeta, setExploreMeta] = useState(null);
+
+  useEffect(() => {
+    feedAnimesRef.current = feedAnimes;
+  }, [feedAnimes]);
 
   const loadFeedAnimes = useCallback(async () => {
     if (isFetchingRef.current || !hasMoreFeed) return;
@@ -128,9 +183,22 @@ function AnimePage() {
       }
       const data = await response.json();
       if (data.data) {
+        const existingIds = new Set(feedAnimesRef.current.map((anime) => anime.mal_id));
+        const popularBatch = data.data.filter((anime) => !existingIds.has(anime.mal_id));
+
+        popularBatch.forEach((anime) => existingIds.add(anime.mal_id));
+
+        const randomCount = Math.max(
+          3,
+          Math.round(popularBatch.length * (FEED_RANDOM_RATIO / (1 - FEED_RANDOM_RATIO)))
+        );
+        const randomBatch = await fetchRandomAnimes(randomCount, existingIds);
+        const mixedBatch = shuffleArray([...popularBatch, ...randomBatch]);
+
         setFeedAnimes((prev) => {
-          const newAnimes = data.data.filter((newA) => !prev.some((p) => p.mal_id === newA.mal_id));
-          return [...prev, ...newAnimes];
+          const seen = new Set(prev.map((anime) => anime.mal_id));
+          const uniqueBatch = mixedBatch.filter((anime) => !seen.has(anime.mal_id));
+          return [...prev, ...uniqueBatch];
         });
         setFeedPage((p) => p + 1);
         setHasMoreFeed(data.pagination?.has_next_page ?? false);
@@ -142,6 +210,38 @@ function AnimePage() {
       isFetchingRef.current = false;
     }
   }, [feedPage, hasMoreFeed]);
+
+  const handleExplore = useCallback(async ({ source, category, limit }) => {
+    setExploreLoading(true);
+    setExploreMode(true);
+    setHasSearched(false);
+    setError('');
+
+    try {
+      const animes = await fetchExploreAnimes(category, limit, source);
+      setExploreAnimes(animes);
+      setExploreMeta({
+        source,
+        category,
+        limit,
+        label: getExploreCategoryLabel(category, source),
+      });
+    } catch (err) {
+      console.error('Erro ao explorar animes:', err);
+      setError(err.message || 'Nao foi possivel carregar esta categoria.');
+      setExploreMode(false);
+      setExploreAnimes([]);
+      setExploreMeta(null);
+    } finally {
+      setExploreLoading(false);
+    }
+  }, []);
+
+  const handleClearExplore = useCallback(() => {
+    setExploreMode(false);
+    setExploreAnimes([]);
+    setExploreMeta(null);
+  }, []);
 
   const fetchSimilarByTitle = useCallback(async (title, currentId) => {
     if (!title) return;
@@ -175,6 +275,9 @@ function AnimePage() {
     setError('');
     setResultsList([]);
     setHasSearched(true);
+    setExploreMode(false);
+    setExploreAnimes([]);
+    setExploreMeta(null);
 
     const q = String(query || '').trim();
     const qLower = q.toLowerCase();
@@ -260,6 +363,9 @@ function AnimePage() {
     setHasSearched(false);
     setResultsList([]);
     setError('');
+    setExploreMode(false);
+    setExploreAnimes([]);
+    setExploreMeta(null);
     lastRequestedIdRef.current = null;
     navigate('/', { replace: true });
   }, [navigate]);
@@ -338,7 +444,7 @@ function AnimePage() {
   // Carrega a Timeline pela primeira vez (SÓ UMA VEZ)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (!hasSearched && feedAnimes.length === 0 && !isFetchingRef.current) {
+    if (!hasSearched && !exploreMode && feedAnimes.length === 0 && !isFetchingRef.current) {
       loadFeedAnimes();
     }
   }, []); // Dependências vazias = executa apenas na montagem
@@ -377,8 +483,7 @@ function AnimePage() {
 
         <div className="header-center">
           <h1 className="header-title">
-            <FilmIcon className="w-5 h-5 inline-block align-text-bottom mr-2" />
-            NickyAnime
+            <BrandLogo size="sm" onClick={() => navigate('/')} />
           </h1>
         </div>
 
@@ -435,15 +540,19 @@ function AnimePage() {
 
       {!currentAnime && (
         <AnimeFeed
-          animes={hasSearched ? resultsList : feedAnimes}
-          loading={!hasSearched && feedAnimes.length === 0}
+          animes={hasSearched ? resultsList : exploreMode ? exploreAnimes : feedAnimes}
+          loading={!hasSearched && !exploreMode && feedAnimes.length === 0}
+          exploreLoading={exploreLoading}
           onSelectAnime={handleSelectAnime}
           onToggleFavorite={handleToggleFavorite}
           onAddToList={handleAddToList}
-          onLoadMore={hasSearched ? null : loadFeedAnimes}
-          hasMore={hasSearched ? false : hasMoreFeed}
+          onLoadMore={hasSearched || exploreMode ? null : loadFeedAnimes}
+          hasMore={hasSearched || exploreMode ? false : hasMoreFeed}
           onSearch={fetchAnimeByQuery}
           onClearSearch={handleBackToFeed}
+          onExplore={handleExplore}
+          onClearExplore={handleClearExplore}
+          exploreMeta={exploreMeta}
         />
       )}
 

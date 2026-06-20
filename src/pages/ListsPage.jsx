@@ -2,6 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
 import { useAnimeLists } from '../hooks/useAnimeLists';
+import {
+  MagnifyingGlassIcon,
+  PlusIcon,
+  TrashIcon,
+} from '@heroicons/react/24/outline';
+import BrandLogo from '../components/BrandLogo';
+import '../styles/AccountPages.css';
 import '../styles/FavoritesPage.css';
 
 function ListsPage() {
@@ -32,97 +39,104 @@ function ListsPage() {
 
     setNewListName('');
     setListError('');
-    navigate('/lists');
   };
 
-  const handleCreateListKeyPress = (e) => {
-    if (e.key === 'Enter') handleCreateList();
+  const handleCreateListKeyPress = (event) => {
+    if (event.key === 'Enter') handleCreateList();
+  };
+
+  const scrollToCreateForm = () => {
+    document.getElementById('new-list-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   return (
-    <div className="favorites-page-container">
-      <div className="favorites-page-header">
-        <button className="back-button" onClick={handleGoBack}>
-          Voltar
+    <div className="account-page">
+      <header className="account-page-header">
+        <button type="button" className="account-back-button" onClick={handleGoBack}>
+          ← Voltar
         </button>
-        <h1 className="favorites-page-title">As Minhas Listas</h1>
-        <div className="favorites-page-spacer"></div>
-      </div>
+        <div className="account-page-title-row">
+          <BrandLogo size="xs" iconOnly />
+          <h1 className="account-page-title">As Minhas Listas</h1>
+        </div>
+        <div className="account-page-header-spacer" aria-hidden="true" />
+      </header>
 
-      <div className="favorites-page-content">
-        <div style={{ marginBottom: '14px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-          <button
-            className="favorite-card-btn view-btn"
-            onClick={() => navigate('/')}
-            style={{ padding: '10px 18px' }}
-          >
-            Procurar mais animes
+      <div className="account-page-content">
+        <div className="account-toolbar">
+          <button type="button" className="account-btn account-btn-ghost" onClick={() => navigate('/')}>
+            <MagnifyingGlassIcon />
+            Procurar animes
           </button>
-          <button
-            className="favorite-card-btn view-btn"
-            onClick={() => {
-              document.getElementById('new-list-form')?.scrollIntoView({ behavior: 'smooth' });
-            }}
-            style={{ padding: '10px 18px' }}
-          >
-            Criar nova lista
+          <button type="button" className="account-btn account-btn-primary" onClick={scrollToCreateForm}>
+            <PlusIcon />
+            Nova lista
           </button>
         </div>
 
-        <div id="new-list-form" style={{ marginBottom: '24px', padding: '20px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '12px' }}>
-          <p style={{ margin: '0 0 12px 0', color: '#ddd', fontSize: '16px' }}>Nomeie e crie uma nova lista:</p>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <section id="new-list-form" className="account-card account-card-highlight">
+          <div className="account-card-header">
+            <div className="account-card-icon">
+              <PlusIcon />
+            </div>
+            <div>
+              <h2 className="account-card-heading">Criar nova lista</h2>
+              <p className="account-card-subtitle">
+                Escolhe um nome claro — depois adiciona animes a partir do feed ou da pesquisa.
+              </p>
+            </div>
+          </div>
+
+          <div className="account-form-row">
             <input
+              className="account-input"
               type="text"
               value={newListName}
-              onChange={(e) => {
-                setNewListName(e.target.value);
+              onChange={(event) => {
+                setNewListName(event.target.value);
                 if (listError) setListError('');
               }}
               onKeyDown={handleCreateListKeyPress}
-              placeholder="Nome da nova lista"
-              style={{
-                flex: '1 1 200px',
-                padding: '10px 14px',
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                fontSize: '15px'
-              }}
+              placeholder="Ex: Para ver este fim de semana"
             />
-            <button className="favorite-card-btn view-btn" style={{ padding: '10px 18px' }} onClick={handleCreateList}>
+            <button type="button" className="account-btn account-btn-primary" onClick={handleCreateList}>
+              <PlusIcon />
               Criar lista
             </button>
           </div>
-          {listError && <p style={{ color: '#ff6b6b', margin: '10px 0 0 0', fontSize: '14px' }}>{listError}</p>}
-        </div>
+          {listError && <p className="account-error">{listError}</p>}
+        </section>
 
         {lists.length === 0 ? (
-          <div className="no-favorites">
+          <div className="account-empty-state">
             <p>Sem listas ainda.</p>
-            <p className="no-favorites-subtitle">Cria uma lista aqui em cima. — sem precisar de login!</p>
+            <p className="account-empty-state-subtitle">
+              Cria a tua primeira lista no formulario acima — sem precisar de login.
+            </p>
           </div>
         ) : (
           lists.map((list) => (
-            <div key={list.id} style={{ marginBottom: '26px' }}>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: '14px',
-                  gap: '12px',
-                  flexWrap: 'wrap'
-                }}
-              >
-                <h2 style={{ margin: 0 }}>{list.name}</h2>
-                <button className="favorite-card-btn remove-btn" onClick={() => removeList(list.id)}>
-                  Remover Lista
+            <section key={list.id} className="account-card list-section">
+              <div className="list-section-header">
+                <div className="list-section-title-wrap">
+                  <h2 className="list-section-title">{list.name}</h2>
+                  <span className="list-count-badge">
+                    {list.items.length} anime{list.items.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className="account-btn account-btn-ghost"
+                  onClick={() => removeList(list.id)}
+                >
+                  <TrashIcon />
+                  Remover
                 </button>
               </div>
 
               {list.items.length === 0 ? (
-                <div className="no-favorites">
-                  <p>Sem animes nesta lista.</p>
+                <div className="list-section-empty">
+                  Sem animes nesta lista. Vai ao feed e clica em &quot;Lista&quot; num anime.
                 </div>
               ) : (
                 <div className="favorites-grid">
@@ -137,9 +151,9 @@ function ListsPage() {
                             className="favorite-card-image"
                             src={anime.image}
                             alt={anime.title}
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.parentElement.innerHTML = '<div class="image-placeholder">Anime</div>';
+                            onError={(event) => {
+                              event.target.style.display = 'none';
+                              event.target.parentElement.innerHTML = '<div class="image-placeholder">Anime</div>';
                             }}
                           />
                         ) : (
@@ -155,12 +169,14 @@ function ListsPage() {
                         </h3>
                         <div className="favorite-card-actions">
                           <button
+                            type="button"
                             className="favorite-card-btn view-btn"
                             onClick={() => handleSelectAnime(anime.mal_id)}
                           >
                             Ver
                           </button>
                           <button
+                            type="button"
                             className="favorite-card-btn remove-btn"
                             onClick={() => removeAnimeFromList(list.id, anime.mal_id)}
                           >
@@ -172,7 +188,7 @@ function ListsPage() {
                   ))}
                 </div>
               )}
-            </div>
+            </section>
           ))
         )}
       </div>

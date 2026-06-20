@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
+import BrandLogo from '../components/BrandLogo';
 import { useFavorites } from '../hooks/useFavorites';
+import '../styles/AccountPages.css';
 import '../styles/FavoritesPage.css';
 
 function FavoritesPage() {
@@ -58,16 +60,19 @@ function FavoritesPage() {
   }, [favorites, updateFavoriteImage]);
 
   return (
-    <div className="favorites-page-container">
-      <div className="favorites-page-header">
-        <button className="back-button" onClick={handleGoBack}>
-          Voltar
+    <div className="account-page">
+      <header className="account-page-header">
+        <button type="button" className="account-back-button" onClick={handleGoBack}>
+          ← Voltar
         </button>
-        <h1 className="favorites-page-title">Favoritos</h1>
-        <div className="favorites-page-spacer"></div>
-      </div>
+        <div className="account-page-title-row">
+          <BrandLogo size="xs" iconOnly />
+          <h1 className="account-page-title">Favoritos</h1>
+        </div>
+        <div className="account-page-header-spacer" aria-hidden="true" />
+      </header>
 
-      <div className="favorites-page-content">
+      <div className="account-page-content favorites-page-content">
         {favorites.length === 0 ? (
           <div className="no-favorites">
             <p>Sem favoritos ainda.</p>

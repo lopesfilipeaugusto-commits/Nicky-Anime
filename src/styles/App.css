@@ -46,6 +46,90 @@
   color: #667eea;
   margin: 0;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Logo da marca — usado em headers e modais */
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: default;
+  text-decoration: none;
+  color: inherit;
+}
+
+button.brand-logo {
+  cursor: pointer;
+}
+
+button.brand-logo:hover {
+  opacity: 0.9;
+}
+
+.brand-logo__image {
+  display: block;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(102, 126, 234, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.brand-logo--xs .brand-logo__image {
+  border-radius: 8px;
+}
+
+.brand-logo--lg .brand-logo__image {
+  border-radius: 16px;
+}
+
+.brand-logo__name {
+  font-weight: 700;
+  line-height: 1.1;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.brand-logo--sm .brand-logo__name {
+  font-size: 1.05rem;
+}
+
+.brand-logo--md .brand-logo__name {
+  font-size: 1.2rem;
+}
+
+.brand-logo--lg .brand-logo__name {
+  font-size: 1.5rem;
+}
+
+.account-page-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.account-page-title-row .account-page-title {
+  margin: 0;
+}
+
+.header-title .brand-logo {
+  justify-content: center;
+}
+
+.header-title .brand-logo__name {
+  color: #667eea;
+  -webkit-text-fill-color: unset;
+  background: none;
 }
 
 .header-btn {
@@ -925,8 +1009,163 @@
 }
 
 /* ============================================================
-   BOTÃO FLUTUANTE DE MENU "+"
+   BOTÃO FLUTUANTE DE MENU "+" — ícones deslizam da direita
    ============================================================ */
+.bottom-nav-fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  gap: 10px;
+  max-width: calc(100vw - 32px);
+}
+
+.bottom-nav-fab-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 998;
+  background: rgba(0, 0, 0, 0.15);
+  animation: bottom-nav-overlay-in 0.25s ease-out;
+}
+
+@keyframes bottom-nav-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.bottom-nav-fab-track {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+  max-width: 0;
+  opacity: 0;
+  transform: translateX(16px);
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: rgba(14, 17, 36, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(18px);
+  transition:
+    max-width 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.3s ease,
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.bottom-nav-fab-track.open {
+  max-width: min(520px, calc(100vw - 120px));
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.bottom-nav-fab-btn {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateX(28px);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.25s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.bottom-nav-fab-track.open .bottom-nav-fab-btn {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.bottom-nav-fab-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.bottom-nav-fab-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+.bottom-nav-fab-btn-danger:hover {
+  background: rgba(255, 94, 98, 0.25);
+  color: #ff8a8d;
+}
+
+.bottom-nav-fab-plus {
+  position: relative;
+  z-index: 2;
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.45);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+
+.bottom-nav-fab-plus:hover {
+  transform: scale(1.06);
+  box-shadow: 0 8px 28px rgba(102, 126, 234, 0.55);
+}
+
+.bottom-nav-fab-plus.open {
+  background: linear-gradient(135deg, #ff5e62 0%, #ff8a00 100%);
+  transform: rotate(90deg) scale(1.04);
+}
+
+.bottom-nav-fab-plus svg {
+  width: 24px;
+  height: 24px;
+}
+
+@media (max-width: 768px) {
+  .bottom-nav-fab {
+    right: 16px;
+    bottom: 16px;
+    gap: 8px;
+  }
+
+  .bottom-nav-fab-track {
+    gap: 8px;
+    padding: 5px 6px;
+  }
+
+  .bottom-nav-fab-track.open {
+    max-width: calc(100vw - 96px);
+  }
+
+  .bottom-nav-fab-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .bottom-nav-fab-plus {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+/* legado — mantido para compatibilidade */
 .floating-menu-btn {
   position: fixed;
   left: 50%;
@@ -1074,6 +1313,11 @@
   padding: 10px 14px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   animation: install-banner-slide 0.4s ease-out;
+}
+
+.install-banner-logo .brand-logo__image {
+  box-shadow: none;
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 @keyframes install-banner-slide {

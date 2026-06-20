@@ -4,6 +4,7 @@ import BottomNav from '../components/BottomNav';
 import LoginModal from '../components/LoginModal';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeftOnRectangleIcon as LogOutIcon, HeartIcon, ListBulletIcon, MagnifyingGlassIcon, PlayIcon as Play, UserIcon } from '@heroicons/react/24/outline';
+import BrandLogo from '../components/BrandLogo';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import {
@@ -55,19 +56,7 @@ function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <div
-              className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => navigate('/')}
-            >
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-                <Play className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  NickyAnime
-                </h1>
-              </div>
-            </div>
+            <BrandLogo size="md" onClick={() => navigate('/')} />
 
             {/* Actions */}
             <div className="flex items-center gap-3">
@@ -106,6 +95,9 @@ function Home() {
         <div className="max-w-2xl w-full space-y-8 text-center animate-fadeIn">
           {/* Hero Section */}
           <div className="space-y-4">
+            <div className="flex justify-center">
+              <BrandLogo size="lg" />
+            </div>
             <div className="inline-block px-4 py-2 rounded-full bg-accent/10 border border-accent/20">
               <p className="text-sm font-medium text-accent">Bem-vindo ao Nicky Anime</p>
             </div>

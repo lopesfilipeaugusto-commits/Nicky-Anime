@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import BrandLogo from './BrandLogo';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import {
@@ -115,6 +116,9 @@ function LoginModal({ isOpen, onSkip }) {
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
+          <div className="flex justify-center pb-2">
+            <BrandLogo size="md" />
+          </div>
           <DialogTitle>Vamos la entrar</DialogTitle>
           <DialogDescription>
             {isRegister

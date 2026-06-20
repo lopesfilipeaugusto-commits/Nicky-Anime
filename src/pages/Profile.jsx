@@ -1,9 +1,6 @@
 // ============================================
 // --- AUTHENTICATION: Profile Page (ATUALIZADO) ---
 // ============================================
-// Perfil do usuário usando Firebase Auth
-// Mostra nome/email do currentUser e permite criar listas personalizadas
-// Botão de logout com confirmação
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
@@ -19,7 +16,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../components/ui/dialog';
-import '../styles/Profile.css';
+import {
+  HeartIcon,
+  ListBulletIcon,
+  PlusIcon,
+  UserIcon,
+  ArrowLeftOnRectangleIcon as LogOutIcon,
+} from '@heroicons/react/24/outline';
+import BrandLogo from '../components/BrandLogo';
+import '../styles/AccountPages.css';
+import '../styles/FavoritesPage.css';
 
 function Profile() {
   const navigate = useNavigate();
@@ -34,16 +40,12 @@ function Profile() {
     navigate('/');
   };
 
-  const handleGoToFavorites = () => {
-    navigate('/favorites');
-  };
-
   const handleAddList = () => {
     const result = createList(listName);
 
     if (!result.ok) {
       if (result.reason === 'duplicate_name') {
-        setListError('Ja tens uma lista com esse nome. Escolhe outro para nao ficar tudo igual.');
+        setListError('Ja tens uma lista com esse nome. Escolhe outro.');
         return;
       }
 
@@ -56,12 +58,8 @@ function Profile() {
     navigate('/lists');
   };
 
-  const handleGoToLists = () => {
-    navigate('/lists');
-  };
-
-  const handleLogoutClick = () => {
-    setShowLogoutConfirm(true);
+  const handleAddListKeyPress = (event) => {
+    if (event.key === 'Enter') handleAddList();
   };
 
   const confirmLogout = async () => {
@@ -69,37 +67,96 @@ function Profile() {
     navigate('/welcome');
   };
 
-  const cancelLogout = () => {
-    setShowLogoutConfirm(false);
-  };
-
-  // Obter nome de exibição: prioriza displayName do Google, depois email antes do @
   const getUserDisplayName = () => {
     if (currentUser?.displayName) return currentUser.displayName;
     if (currentUser?.email) return currentUser.email.split('@')[0];
     return 'Utilizador';
   };
 
-  return (
-    <div className="profile-container">
-      <div className="profile-header">
-        <button className="back-button" onClick={handleGoBack}>
-          Voltar
-        </button>
-        <h1 className="profile-title">Perfil</h1>
-        <div className="profile-spacer"></div>
-      </div>
+  const getUserInitial = () => getUserDisplayName().charAt(0).toUpperCase();
 
-      <div className="profile-content">
-        {/* Lista de criação — disponível para todos, autenticados ou não */}
-        <div className="profile-card">
-          <h2 className="profile-name">Criar uma lista de animes</h2>
-          <p className="profile-email" style={{ marginBottom: '16px' }}>
-            Da um nome a tua lista e abre "Ver listas" para a gerires. Quando fores a um anime, podes adiciona-lo diretamente a lista que quiseres. Podes fazer isto sem conta — ou entao faz login para guardares os teus dados sincronizados.
-          </p>
-          <div className="profile-list-creator">
+  return (
+    <div className="account-page">
+      <header className="account-page-header">
+        <button type="button" className="account-back-button" onClick={handleGoBack}>
+          ← Voltar
+        </button>
+        <div className="account-page-title-row">
+          <BrandLogo size="xs" iconOnly />
+          <h1 className="account-page-title">Perfil</h1>
+        </div>
+        <div className="account-page-header-spacer" aria-hidden="true" />
+      </header>
+
+      <div className="account-page-content">
+        {currentUser && (
+          <section className="account-card account-card-highlight">
+            <div className="account-profile-hero">
+              {currentUser.photoURL ? (
+                <img
+                  src={currentUser.photoURL}
+                  alt={getUserDisplayName()}
+                  className="account-avatar"
+                />
+              ) : (
+                <div className="account-avatar-fallback">{getUserInitial()}</div>
+              )}
+              <div>
+                <h2 className="account-profile-name">{getUserDisplayName()}</h2>
+                {currentUser.email && (
+                  <p className="account-profile-email">{currentUser.email}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="account-actions-grid">
+              <button
+                type="button"
+                className="account-btn account-btn-success"
+                onClick={() => navigate('/lists')}
+              >
+                <ListBulletIcon />
+                Ver listas
+              </button>
+              <button
+                type="button"
+                className="account-btn account-btn-secondary"
+                onClick={() => navigate('/favorites')}
+              >
+                <HeartIcon />
+                Favoritos
+              </button>
+            </div>
+
+            <button
+              type="button"
+              className="account-btn account-btn-danger account-btn-block"
+              style={{ marginTop: '14px' }}
+              onClick={() => setShowLogoutConfirm(true)}
+            >
+              <LogOutIcon />
+              Sair da conta
+            </button>
+          </section>
+        )}
+
+        <section className="account-card">
+          <div className="account-card-header">
+            <div className="account-card-icon">
+              <PlusIcon />
+            </div>
+            <div>
+              <h2 className="account-card-heading">Criar uma lista</h2>
+              <p className="account-card-subtitle">
+                Da um nome a tua lista e adiciona animes a partir do feed ou da pesquisa.
+                Funciona sem conta — ou faz login para sincronizar entre dispositivos.
+              </p>
+            </div>
+          </div>
+
+          <div className="account-form-row">
             <input
-              className="profile-list-input"
+              className="account-input"
               type="text"
               placeholder="Nome da nova lista"
               value={listName}
@@ -107,45 +164,37 @@ function Profile() {
                 setListName(event.target.value);
                 if (listError) setListError('');
               }}
+              onKeyDown={handleAddListKeyPress}
             />
-            <button className="profile-list-btn" onClick={handleAddList}>
-              Adicionar uma lista
-            </button>
-            {listError && <p className="profile-list-error">{listError}</p>}
-          </div>
-        </div>
-
-        {/* Informações de perfil — apenas para utilizadores autenticados */}
-        {currentUser && (
-          <div className="profile-card">
-            <h2 className="profile-name">
-              {getUserDisplayName()}
-            </h2>
-            {currentUser.email && (
-              <p className="profile-email">{currentUser.email}</p>
-            )}
-            <button className="profile-lists-btn" onClick={handleGoToLists}>
-              Ver listas
-            </button>
-            <button className="profile-favorites-btn" onClick={handleGoToFavorites}>
-              Ir para Favoritos
-            </button>
-            <button className="profile-logout-btn" onClick={handleLogoutClick}>
-              Sair da conta
+            <button type="button" className="account-btn account-btn-primary" onClick={handleAddList}>
+              <PlusIcon />
+              Criar lista
             </button>
           </div>
-        )}
+          {listError && <p className="account-error">{listError}</p>}
+        </section>
 
         {!currentUser && (
-          <div className="profile-card">
-            <h2 className="profile-name">Queres guardar os teus dados?</h2>
-            <p className="profile-email">
-              Faz login com Google ou email para sincronizar tuas listas e favoritos entre dispositivos.
-            </p>
-            <button className="profile-list-btn" onClick={() => setShowLoginModal(true)}>
+          <section className="account-card">
+            <div className="account-card-header">
+              <div className="account-card-icon">
+                <UserIcon />
+              </div>
+              <div>
+                <h2 className="account-card-heading">Guardar os teus dados</h2>
+                <p className="account-card-subtitle">
+                  Faz login com Google ou email para sincronizar listas e favoritos entre dispositivos.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="account-btn account-btn-primary account-btn-block"
+              onClick={() => setShowLoginModal(true)}
+            >
               Entrar agora
             </button>
-          </div>
+          </section>
         )}
       </div>
 
@@ -161,7 +210,7 @@ function Profile() {
             <Button onClick={confirmLogout} variant="destructive" className="flex-1">
               Sim, sair
             </Button>
-            <Button onClick={cancelLogout} variant="outline" className="flex-1">
+            <Button onClick={() => setShowLogoutConfirm(false)} variant="outline" className="flex-1">
               Cancelar
             </Button>
           </DialogFooter>
