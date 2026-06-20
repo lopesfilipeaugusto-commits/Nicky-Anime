@@ -27,15 +27,5 @@
   <body>
     <noscript>É necessário ter JavaScript ativado para usar esta aplicação.</noscript>
     <div id="root"></div>
-    <script>
-      // Registar Service Worker para funcionar offline
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(err => {
-            // Erro no registo do SW não é crítico — a app continua a funcionar
-          });
-        });
-      }
-    </script>
   </body>
 </html>
