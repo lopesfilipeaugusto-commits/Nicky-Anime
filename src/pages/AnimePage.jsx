@@ -17,6 +17,12 @@ import { useAuth } from '../context/AuthContext';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import BrandLogo from '../components/BrandLogo';
 import { fetchExploreAnimes, getExploreCategoryLabel } from '../services/jikanExplore';
+import {
+  fetchJikanJson,
+  fetchTopAnimePage,
+  fetchDiscoveryAnimes,
+  searchAnime,
+} from '../services/jikanApi';
 import '../styles/App.css';
 
 // Avatar de foto do Google — aparece ao lado do nome do usuário no cabeçalho
@@ -98,7 +104,6 @@ const normalizeBaseTitle = (title) => {
 };
 
 const FEED_RANDOM_RATIO = 0.3;
-const RANDOM_FETCH_DELAY_MS = 350;
 
 const shuffleArray = (items) => {
   const arr = [...items];
@@ -107,37 +112,6 @@ const shuffleArray = (items) => {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
-};
-
-const fetchRandomAnimes = async (count, excludeIds) => {
-  const animes = [];
-  const maxAttempts = count * 4;
-
-  for (let attempt = 0; attempt < maxAttempts && animes.length < count; attempt += 1) {
-    try {
-      const response = await fetch('https://api.jikan.moe/v4/random/anime');
-      if (response.status === 429) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        continue;
-      }
-      if (!response.ok) continue;
-
-      const data = await response.json();
-      const anime = data?.data;
-      if (!anime?.mal_id || excludeIds.has(anime.mal_id)) continue;
-
-      excludeIds.add(anime.mal_id);
-      animes.push(anime);
-    } catch {
-      // ignora falhas pontuais de random
-    }
-
-    if (animes.length < count) {
-      await new Promise((resolve) => setTimeout(resolve, RANDOM_FETCH_DELAY_MS));
-    }
-  }
-
-  return animes;
 };
 
 function AnimePage() {
@@ -177,11 +151,7 @@ function AnimePage() {
     if (isFetchingRef.current || !hasMoreFeed) return;
     isFetchingRef.current = true;
     try {
-      const response = await fetch(`https://api.jikan.moe/v4/top/anime?page=${feedPage}`);
-      if (!response.ok) {
-        throw new Error(`HTTP Error ${response.status}`);
-      }
-      const data = await response.json();
+      const data = await fetchTopAnimePage(feedPage);
       if (data.data) {
         const existingIds = new Set(feedAnimesRef.current.map((anime) => anime.mal_id));
         const popularBatch = data.data.filter((anime) => !existingIds.has(anime.mal_id));
@@ -192,7 +162,7 @@ function AnimePage() {
           3,
           Math.round(popularBatch.length * (FEED_RANDOM_RATIO / (1 - FEED_RANDOM_RATIO)))
         );
-        const randomBatch = await fetchRandomAnimes(randomCount, existingIds);
+        const randomBatch = await fetchDiscoveryAnimes(randomCount, existingIds);
         const mixedBatch = shuffleArray([...popularBatch, ...randomBatch]);
 
         setFeedAnimes((prev) => {
@@ -247,18 +217,9 @@ function AnimePage() {
     if (!title) return;
 
     try {
-      const response = await fetch(
-        `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(title)}`,
-        { headers: { 'Cache-Control': 'no-cache' } }
-      );
+      const results = await searchAnime(title);
 
-      if (!response.ok) return;
-
-      const data = await response.json();
-
-      if (!data || !Array.isArray(data.data)) return;
-
-      const filtered = data.data.filter((anime) => {
+      const filtered = results.filter((anime) => {
         if (anime.mal_id === currentId) return false;
         const base = normalizeBaseTitle(anime.title || anime.title_english || '');
         return base && (base.includes(title) || title.includes(base));
@@ -282,27 +243,17 @@ function AnimePage() {
     const q = String(query || '').trim();
     const qLower = q.toLowerCase();
 
-    let url = '';
+    let path = '';
     if (ANIME_DATABASE[qLower]) {
-      url = `https://api.jikan.moe/v4/anime/${ANIME_DATABASE[qLower]}`;
+      path = `/anime/${ANIME_DATABASE[qLower]}`;
     } else if (isNumeric(q)) {
-      url = `https://api.jikan.moe/v4/anime/${q}`;
+      path = `/anime/${q}`;
     } else {
-      url = `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}`;
+      path = `/anime?q=${encodeURIComponent(q)}`;
     }
 
     try {
-      const response = await fetch(url, {
-        headers: { 'Cache-Control': 'no-cache' }
-      });
-
-      if (!response.ok) {
-        if (response.status === 429) {
-          throw new Error('Muitos pedidos seguidos. Espera alguns segundos e tenta novamente.');
-        }
-        throw new Error(`HTTP Error ${response.status}`);
-      }
-      const data = await response.json();
+      const data = await fetchJikanJson(path);
 
       if (!data.data) throw new Error('No data in response');
 

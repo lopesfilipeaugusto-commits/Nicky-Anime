@@ -151,9 +151,13 @@ function AnimeFeed({
                       </div>
                     )}
 
-                    {anime.rank && (
+                    {anime.rank ? (
                       <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/55 text-white text-xs font-bold">
                         #{anime.rank}
+                      </div>
+                    ) : (
+                      <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-purple-600/85 text-white text-xs font-bold">
+                        Aleatorio
                       </div>
                     )}
                   </div>

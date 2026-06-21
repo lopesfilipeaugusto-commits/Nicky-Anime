@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
 import BrandLogo from '../components/BrandLogo';
 import { useFavorites } from '../hooks/useFavorites';
+import { fetchAnimeById, getAnimeImage } from '../services/jikanApi';
 import '../styles/AccountPages.css';
 import '../styles/FavoritesPage.css';
 
@@ -26,28 +27,20 @@ function FavoritesPage() {
         (anime) => anime.mal_id && anime.imageQuality !== 'large'
       );
 
-      await Promise.all(
-        favoritesToRefresh.map(async (anime) => {
-          try {
-            const response = await fetch(`https://api.jikan.moe/v4/anime/${anime.mal_id}`);
-            if (!response.ok) return;
+      for (const anime of favoritesToRefresh) {
+        if (isCancelled) break;
 
-            const data = await response.json();
-            const highQualityImage =
-              data.data?.images?.webp?.large_image_url ||
-              data.data?.images?.jpg?.large_image_url ||
-              data.data?.images?.webp?.image_url ||
-              data.data?.images?.jpg?.image_url ||
-              '';
+        try {
+          const animeData = await fetchAnimeById(anime.mal_id, { silent: true });
+          const highQualityImage = getAnimeImage(animeData);
 
-            if (!isCancelled && highQualityImage && highQualityImage !== anime.image) {
-              updateFavoriteImage(anime.mal_id, highQualityImage);
-            }
-          } catch (error) {
-            console.error('Error updating favorite image:', error);
+          if (highQualityImage && highQualityImage !== anime.image) {
+            updateFavoriteImage(anime.mal_id, highQualityImage);
           }
-        })
-      );
+        } catch (error) {
+          console.error('Error updating favorite image:', error);
+        }
+      }
     };
 
     if (favorites.length > 0) {

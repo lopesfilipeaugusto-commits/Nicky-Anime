@@ -70,7 +70,7 @@ function BottomNav() {
         onClick: handleLogout,
       }
     : {
-        icon: UserIcon,
+        icon: HomeIcon,
         label: 'Entrar',
         onClick: () => navigate('/welcome'),
       };
