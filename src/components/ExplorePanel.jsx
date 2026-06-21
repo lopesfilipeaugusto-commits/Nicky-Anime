@@ -9,9 +9,11 @@ import {
 } from '@heroicons/react/24/outline';
 import {
   EXPLORE_CATEGORIES,
+  CARTOON_CATEGORIES,
   EXPLORE_LIMITS,
   EXPLORE_SOURCES,
 } from '../services/jikanExplore';
+import { isTmdbConfigured } from '../services/tmdbApi';
 import { CURATED_CARTOONS_TOTAL } from '../data/curatedCartoons';
 import '../styles/ExplorePanel.css';
 
@@ -32,6 +34,7 @@ function ExplorePanel({
   };
 
   const isCartoons = source === 'cartoons';
+  const cartoonCategories = isTmdbConfigured ? CARTOON_CATEGORIES : null;
 
   return (
     <div className="explore-section">
@@ -89,7 +92,7 @@ function ExplorePanel({
             </div>
 
             <div className="explore-panel-block explore-panel-block--categories">
-              {isCartoons ? (
+              {isCartoons && !cartoonCategories ? (
                 <>
                   <p className="explore-panel-label">Selecao curada</p>
                   <div className="explore-cartoons-info">
@@ -105,7 +108,7 @@ function ExplorePanel({
                 <>
                   <p className="explore-panel-label">Categoria</p>
                   <div className="explore-category-list">
-                    {EXPLORE_CATEGORIES.map((item) => (
+                    {(isCartoons ? cartoonCategories : EXPLORE_CATEGORIES).map((item) => (
                       <button
                         key={item.id}
                         type="button"
@@ -117,6 +120,11 @@ function ExplorePanel({
                       </button>
                     ))}
                   </div>
+                  {isCartoons && cartoonCategories && (
+                    <p className="explore-cartoons-desc" style={{ marginTop: '0.75rem' }}>
+                      Dados via TMDB — animacao e desenhos ocidentais.
+                    </p>
+                  )}
                 </>
               )}
             </div>

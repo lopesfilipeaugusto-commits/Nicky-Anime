@@ -24,7 +24,7 @@ function FavoritesPage() {
 
     const refreshFavoriteImages = async () => {
       const favoritesToRefresh = favorites.filter(
-        (anime) => anime.mal_id && anime.imageQuality !== 'large'
+        (anime) => anime.mal_id > 0 && anime.imageQuality !== 'large'
       );
 
       for (const anime of favoritesToRefresh) {

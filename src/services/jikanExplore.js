@@ -4,6 +4,7 @@ import {
   fetchRandomAnimes,
   fetchAnimeByIds,
 } from './jikanApi';
+import { isTmdbConfigured, fetchExploreCartoons } from './tmdbApi';
 
 const PAGE_SIZE = 25;
 const BULK_IDS_LIMIT = 50;
@@ -11,6 +12,14 @@ const BULK_IDS_LIMIT = 50;
 export const EXPLORE_SOURCES = [
   { id: 'anime', label: 'Anime' },
   { id: 'cartoons', label: 'Desenhos' },
+];
+
+export const CARTOON_CATEGORIES = [
+  { id: 'popular', label: 'Populares', description: 'Desenhos animados mais populares' },
+  { id: 'top', label: 'Top Geral', description: 'Melhor avaliados na TMDB' },
+  { id: 'seasonal', label: 'Recentes', description: 'Estreias mais recentes' },
+  { id: 'score', label: 'Por Nota', description: 'Maior pontuacao da comunidade' },
+  { id: 'random', label: 'Aleatorio', description: 'Pagina aleatoria de descoberta' },
 ];
 
 export const EXPLORE_CATEGORIES = [
@@ -61,6 +70,9 @@ export async function fetchExploreAnimes(category, limit = 25, source = 'anime')
   const safeLimit = EXPLORE_LIMITS.includes(limit) ? limit : 25;
 
   if (source === 'cartoons') {
+    if (isTmdbConfigured) {
+      return fetchExploreCartoons(category || 'popular', safeLimit);
+    }
     return fetchCuratedCartoons(safeLimit);
   }
 
@@ -93,6 +105,9 @@ export async function fetchExploreAnimes(category, limit = 25, source = 'anime')
 
 export function getExploreCategoryLabel(categoryId, source = 'anime') {
   if (source === 'cartoons') {
+    if (isTmdbConfigured) {
+      return CARTOON_CATEGORIES.find((item) => item.id === categoryId)?.label || 'Desenhos Animados';
+    }
     return 'Desenhos Animados';
   }
   return EXPLORE_CATEGORIES.find((item) => item.id === categoryId)?.label || 'Explorar';

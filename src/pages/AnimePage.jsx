@@ -23,6 +23,7 @@ import {
   fetchDiscoveryAnimes,
   searchAnime,
 } from '../services/jikanApi';
+import { isTmdbMalId, fetchTmdbShowById } from '../services/tmdbApi';
 import '../styles/App.css';
 
 // Avatar de foto do Google — aparece ao lado do nome do usuário no cabeçalho
@@ -242,6 +243,27 @@ function AnimePage() {
 
     const q = String(query || '').trim();
     const qLower = q.toLowerCase();
+    const numericId = Number(q);
+
+    if (isNumeric(q) && isTmdbMalId(numericId)) {
+      try {
+        const show = await fetchTmdbShowById(-numericId);
+        setCurrentAnime((previousAnime) => {
+          if (!previousAnime || previousAnime.mal_id !== show.mal_id) {
+            setHistoryStack((prev) => [...prev, previousAnime].filter(Boolean));
+          }
+          return show;
+        });
+        setResultsList([show]);
+        return;
+      } catch (err) {
+        setError(err.message || 'Nao foi possivel carregar este desenho.');
+        setCurrentAnime(null);
+        return;
+      } finally {
+        setLoading(false);
+      }
+    }
 
     let path = '';
     if (ANIME_DATABASE[qLower]) {
