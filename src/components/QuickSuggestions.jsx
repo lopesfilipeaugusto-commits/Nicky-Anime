@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { SparklesIcon } from '@heroicons/react/24/outline';
+import { fetchRandomAnimes } from '../services/jikanApi';
 
 const PER_PAGE = 6;
 const LOAD_MORE_THRESHOLD = 400; // px antes do fim para disparar auto-load
@@ -14,25 +15,9 @@ const QuickSuggestions = memo(({ onSelectAnime }) => {
   const observerRef = useRef(null);
   const hasAutoLoaded = useRef(false);
 
-  const fetchPage = useCallback(async (pageNum) => {
-    const offset = pageNum * PER_PAGE;
-
-    const requests = Array.from({ length: PER_PAGE }, (_, i) =>
-      fetch(`https://api.jikan.moe/v4/random/anime`)
-        .then((res) => {
-          if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
-          return res.json();
-        })
-        .catch((err) => {
-          console.error('Erro ao carregar anime:', err);
-          return null;
-        })
-    );
-
-    const results = await Promise.all(requests);
-    const valid = results.filter((d) => d && d.data).map((d) => d.data);
-
-    return { items: valid, done: valid.length < PER_PAGE };
+  const fetchPage = useCallback(async () => {
+    const items = await fetchRandomAnimes(PER_PAGE);
+    return { items, done: items.length < PER_PAGE };
   }, []);
 
   // Primeira carga
@@ -41,7 +26,7 @@ const QuickSuggestions = memo(({ onSelectAnime }) => {
 
     (async () => {
       try {
-        const { items, done } = await fetchPage(0);
+        const { items, done } = await fetchPage();
         if (!cancelled) {
           setAnimes(items);
           setHasMore(!done);
@@ -65,7 +50,7 @@ const QuickSuggestions = memo(({ onSelectAnime }) => {
 
     try {
       const nextPage = page + 1;
-      const { items, done } = await fetchPage(nextPage);
+      const { items, done } = await fetchPage();
       setAnimes((prev) => [...prev, ...items]);
       setHasMore(!done);
       setPage(nextPage);
@@ -117,7 +102,7 @@ const QuickSuggestions = memo(({ onSelectAnime }) => {
     hasAutoLoaded.current = false;
 
     try {
-      const { items, done } = await fetchPage(0);
+      const { items, done } = await fetchPage();
       setAnimes(items);
       setHasMore(!done);
       setPage(0);
